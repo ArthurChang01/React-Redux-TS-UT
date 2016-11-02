@@ -1,0 +1,103 @@
+import React = require('react');
+import {Link} from 'react-router';
+import {connect} from 'react-redux';
+
+import {LoginAsyncAction} from '../../actions/login/LoginAsyncAction';
+import {Validator} from '../../utilities/Validator';
+const {Component} = React;
+
+export interface LoginProperties extends LoginState.State {
+    isFetching:boolean;
+    onSubmit:(username, password)=>{}
+}
+
+export interface LoginState { }
+
+export class Login extends Component<LoginProperties,LoginState> {
+    private frm:HTMLFormElement;
+    private username:HTMLInputElement;
+    private password:HTMLInputElement;
+
+    componentDidMount() {
+        let rules = {
+            username: { required: true },
+            password: { required: true }
+        };
+        
+        Validator(rules);
+    }
+
+    onSubmit=(e)=> {
+        e.preventDefault();
+        if (!$(this.frm).valid())
+            return false;
+
+        let username = this.username.value,
+            password = this.password.value;
+        this.props.onSubmit(username, password);
+    }
+
+    render() {
+        return <div className="container body-content">
+            <h2> 登入.</h2>
+            <div className="row">
+                <div className="col-md-8">
+                    <section id="loginForm">
+                        <form method="post" className="form-horizontal" role="form" onSubmit={this.onSubmit} noValidate ref={node=>this.frm=node}>
+                            <h4>使用本機帳戶登入。</h4>
+                            <hr />
+                            <div className="form-group">
+                                <label htmlFor="username" className="col-md-2 control-label">電子郵件</label>
+                                <div className="col-md-10">
+                                    <input type="text" name="username" className="form-control" ref={node=>this.username=node} />
+                                </div>
+                            </div>
+                            <div className="form-group">
+                                <label className="col-md-2 control-label">密碼</label>
+                                <div className="col-md-10">
+                                    <input type="password" name="password" className="form-control" ref={node=>this.password=node} />
+                                </div>
+                            </div>
+                            <div className="form-group">
+                                <div className="col-md-offset-2 col-md-10">
+                                    <div className="checkbox">
+                                        <input type="checkbox" />
+                                        <label>記住我</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="form-group">
+                                <div className="col-md-offset-2 col-md-10">
+                                    <input type="submit" value="登入" disabled={this.props.isFetching} className="btn btn-default" />
+                                </div>
+                            </div>
+                            <p>
+                                <Link to="/register">註冊為新使用者</Link>
+                            </p>
+                            * 請在啟用密碼重設功能的帳戶確認之後啟用此項目
+                        </form>
+                    </section>
+                </div>
+            </div>
+        </div>;
+    }
+}
+
+//for connect
+const mapStateToProps = (state) => {
+    return {
+        isFetching: state ? state.isFetching : false
+    };
+};
+
+//for connect
+const mapDispatchToProps = (dispatch) => {
+    return {
+        onSubmit: (username, password) => {
+            dispatch(LoginAsyncAction(username, password));
+        }
+    };
+};
+
+//connect
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

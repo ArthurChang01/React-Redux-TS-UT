@@ -1,0 +1,7 @@
+--require ts-node/register 
+--require jsdom-global/register
+--watch-extensions tsx,ts 
+--recursive
+--inline-diffs
+--reporter spec
+test/**/*.spec.ts
